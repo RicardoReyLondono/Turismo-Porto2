@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo Porto</title>
+
+    <!-- Instalar a última versão do Leaflet, tem dois arquivos: CSS e JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin="" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Leaflet js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+
+    <script src="./Data/Municipio_Porto.js"></script>
+    <script src="./Data/MonumentosPorto_Final.js"></script>
+    <script src="./Data/Museos_Porto_Final.js"></script>
+    <script src="./Data/Teatros_Porto_Final.js"></script>
+    
+    <script>
+        // Inicialização do mapa
+        var map = L.map('map').setView([41.159863935756874, -8.630196963913638], 12.5);
+
+        // layer OSM
+        var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        osm.addTo(map);
+
+        // BASEMAP ESRI World Imagery
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+        Esri_WorldImagery.addTo(map)
+
+
+    // Layer de Monumentos GeoJSON
+    var municipioporto = L.geoJSON(municipioporto, {
+    style: function (feature) {
+        return {
+            fillColor: 'white',
+            color: '#dfee91',     // Border color
+            weight: 3,          // Border thickness
+            opacity: 5,         // Border opacity
+            fillOpacity: 0.2    // Fill opacity
+        };
+    }
+}).addTo(map);
+
+    
+    var MonumentosLayer = L.geoJSON(Monumentos_Porto, {
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.Nome) {
+                    layer.bindPopup(feature.properties.Nome);
+                }
+            }
+        }) 
+    
+    var MuseosLayer = L.geoJSON(Museos_Porto, {
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.Nome) {
+                    layer.bindPopup(feature.properties.Nome);
+                }
+            }
+        })
+    
+    var TeatrosLayer = L.geoJSON(Teatros_Porto,{
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.Nome) {
+                    layer.bindPopup(feature.properties.Nome);
+                }
+            }
+        })
+    
+    var baseMaps = {
+    "OpenStreetMap": osm,
+    "Esri_WorldImagery": Esri_WorldImagery
+    };
+
+    var overlayMaps = {
+    "Municipio do Porto": municipioporto,
+    "Monumentos": MonumentosLayer,
+    "Museos e Centros Temáticos": MuseosLayer,
+    "Teatros": TeatrosLayer
+    };
+
+    var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
+
+    </script>
+</body>
+</html>
